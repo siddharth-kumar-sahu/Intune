@@ -1,0 +1,41 @@
+{% extends 'team_base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-4">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-primary">Upload Your Document</h3>
+                    <p class="text-muted mb-0">Supported formats: <strong>.txt, .pdf, .md</strong></p>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" action="{% url 'upload' team_id=team.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label fw-semibold">Select File</label>
+                        <input class="form-control" type="file" id="formFile" name="document"
+                               accept=".txt,.pdf,.md" required>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Upload</button>
+                    </div>
+                </form>
+
+                {% if messages %}
+                <div class="mt-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container py-5 position-relative">
+
+    <!-- Header + Create Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Our Teams</h2>
+        <button type="button" class="btn btn-primary shadow-sm d-flex align-items-center gap-2"
+                data-bs-toggle="modal" data-bs-target="#createTeamModal"
+                style="position: fixed; top: 30px; right: 40px; z-index: 1050;">
+            <i class="bi bi-plus-lg"></i> Create Team
+        </button>
+    </div>
+
+    <!-- Teams Grid -->
+    <div class="row g-4">
+        {% for team in teams %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 hover-shadow transition-all">
+                <div class="card-body text-center py-4">
+                    <h5 class="card-title fw-semibold">{{ team.name }}</h5>
+                    <p class="card-text text-muted small">
+                        {{ team.description|default:"No description available." }}
+                    </p>
+                    <a href="{% url 'dashboard' team_id=team.id %}" class="btn btn-outline-primary btn-sm">
+                        View Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center mt-5">
+            <p class="text-muted">No teams found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal fade" id="createTeamModal" tabindex="-1" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="createTeamModalLabel">Create a New Team</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'create_team' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="teamName" class="form-label fw-semibold">Team Name</label>
+                        <input type="text" name="name" id="teamName" class="form-control" placeholder="Enter team name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="teamDescription" class="form-label fw-semibold">Description</label>
+                        <textarea name="description" id="teamDescription" class="form-control" rows="3"
+                                  placeholder="Describe your team"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}

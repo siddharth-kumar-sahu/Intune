@@ -1,0 +1,184 @@
+{% extends 'team_base.html' %}
+
+{% block styles %}
+<style>
+    .chat-card {
+        max-width: 100%;
+        margin: 0 auto;
+        height: 82vh;
+        display: flex;
+        flex-direction: column;
+        border-radius: .5rem;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        background: transparent;
+    }
+
+    .chat-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fff
+    }
+
+
+    /* messages area grows and scrolls */
+    .messages {
+        flex: 1 1 auto;
+        padding: 16px;
+        overflow: auto;
+        background: linear-gradient(180deg, #fefefe, #fbfbfd)
+    }
+
+
+    .msg {
+        max-width: 78%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        word-break: break-word
+    }
+
+    .msg.me {
+        margin-left: auto;
+        background: #0d6efd;
+        color: #fff
+    }
+
+    .msg.other {
+        margin-right: auto;
+        background: #e9ecef;
+        color: #000
+    }
+
+
+    .chat-footer {
+        padding: 10px;
+        border-top: 1px solid #e9ecef;
+        background: #fff
+    }
+
+    /* Sidebar styles */
+    .sidebar-card {
+        height: 82vh;
+        overflow: auto;
+        border-radius: .5rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+        background: #fff;
+        padding: 0;
+    }
+
+    .sidebar-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fff;
+    }
+
+    .chat-item .list-group-item {
+        cursor: pointer;
+    }
+
+    .chat-item .active {
+        font-weight: 600;
+    }
+
+    /* keep footer visible on small screens */
+    @media (max-width:480px) {
+        body {
+            padding: 8px
+        }
+
+        .chat-card,
+        .sidebar-card {
+            height: 48vh;
+            border-radius: 0
+        }
+
+        .sidebar-wrapper {
+            margin-top: 12px;
+        }
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="row g-3">
+    <!-- Main chat column -->
+    <div class="col-lg-8">
+        <div class="card chat-card">
+            <div class="chat-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="mb-0">{{ chat.title }}</h6>
+                    <small class="text-muted">{{ team.name }}</small>
+                </div>
+                <div class="text-muted"><small>Ready</small></div>
+            </div>
+
+
+            <div id="messages" class="messages" aria-live="polite">
+                <!-- messages will be rendered here -->
+                {% for conversation in conversations %}
+                <div class="msg {% if conversation.sender == 'user' %}me{% else %}other{% endif %}">
+                    {{ conversation.message|safe }}
+                </div>
+                {% endfor %}
+            </div>
+
+
+            <div class="chat-footer">
+                <!-- simple form: you can hook this up to your backend; no network calls here -->
+                <form id="chat-form" class="row g-2 align-items-center"
+                    action="{% url 'chat-conversation' team_id=team.id chat_id=chat.id %}" method="post">
+                    {% csrf_token %}
+
+                    <div class="col">
+                        <input id="input" name="query" type="text" class="form-control" placeholder="Type a message..."
+                            autocomplete="off" aria-label="Chat message">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar: previous chats -->
+    <div class="col-lg-4 sidebar-wrapper">
+        <div class="card sidebar-card">
+            <div class="sidebar-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="mb-0">Previous chats</h6>
+                    <small class="text-muted">Continue a conversation</small>
+                </div>
+                <div>
+                    <a href="{% url 'chat' team_id=team.id %}" class="btn btn-sm btn-outline-primary">New</a>
+                </div>
+            </div>
+
+            <div class="list-group list-group-flush chat-item">
+                {% for prev in previous_chats %}
+                <a href="{% url 'chat-conversation' team_id=team.id chat_id=prev.id %}"
+                    class="list-group-item list-group-item-action d-flex flex-column {% if prev.id == chat.id %}active{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ prev.title|truncatechars:30 }}</h6>
+                        <small class="text-muted">{{ prev.updated_at|date:"M j, Y" }}</small>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="list-group-item">No previous chats. Start a new one.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- optional JS: scroll messages to bottom on load -->
+<script>
+    (function () {
+        var msgBox = document.getElementById('messages');
+        if (msgBox) {
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+    })();
+</script>
+{% endblock content %}

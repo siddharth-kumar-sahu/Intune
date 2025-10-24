@@ -1,0 +1,50 @@
+{% extends 'team_base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary">📁 Team Documents</h3>
+        <span class="text-muted small">Total: {{ documents.count }}</span>
+    </div>
+
+    {% if documents %}
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table align-middle table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Document Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Size (KB)</th>
+                    <th scope="col">Uploaded On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>
+                        <a href="{{ doc.file.url }}" class="text-decoration-none fw-semibold text-dark" target="_blank">
+                            {{ doc.name }}
+                        </a>
+                    </td>
+                    <td>{{ doc.content_type|default:"N/A" }}</td>
+                    <td>{{ doc.size }}</td>
+                    <td>{{ doc.created_at|date:"M d, Y - H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No documents uploaded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-folder2-open fs-1 text-muted"></i>
+        <p class="mt-3 text-muted">No documents uploaded yet for this team.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}
